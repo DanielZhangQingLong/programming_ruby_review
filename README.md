@@ -1,4 +1,4 @@
-# Review ruby read and practice " Programming Ruby"(Pickaxe)
+# Review ruby read and practice " Programming Ruby"(Pickaxe)"
 ## Concontrating on a little bit more advanced skills
 
 
