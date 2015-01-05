@@ -4,15 +4,12 @@ class CountWords
     @string = string
   end
 
-
   def count
-
     words_array = words_from_string(@string)
     words_hash = Hash.new(0)
     words_array.each do |word|
         words_hash[word] += 1
     end
-
     words_hash
   end
 
@@ -23,7 +20,9 @@ class CountWords
   end
 
   private
+
     def words_from_string(string)
       string.downcase.scan(/[\w']+/)
     end
+    
 end
