@@ -30,6 +30,7 @@ puts sum
 
 > If, however, a variable appears only inside a block, then that variable is local to the block— in the preceding program, we couldn’t have written the value of square at the end of the code, because square is not defined at that point. It is defined only inside the block itself.
 
+#### Variable Scope
 > 这里就产生一个问题, 相同名称 block 内部的变量会将外部的覆盖掉.所以起名要格外注意.
 
 > 下面的写法会出问题.
