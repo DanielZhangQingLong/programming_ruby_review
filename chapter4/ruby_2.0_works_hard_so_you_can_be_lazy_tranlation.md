@@ -32,4 +32,4 @@ p range.lazy.collect { |x| x*x }.first(10)
 
 > 当我在调用 collect 的时候, 正在使用 Enumerable module. 你可能知道, 这个 module 包含一系列的方法, 如: select, detect, any? 等许多方法, 这些方法以不同的方式处理值. 
 > 在内部, 所有的这些方法都是在目标对象或者接收者上调用 each 来工作的:
-![Alt] (./collect1.png)
+> ![Alt] (./collect1.png)
