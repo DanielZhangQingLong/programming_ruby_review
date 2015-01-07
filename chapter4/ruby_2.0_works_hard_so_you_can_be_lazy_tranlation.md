@@ -34,3 +34,80 @@ p range.lazy.collect { |x| x*x }.first(10)
 > 在内部, 所有的这些方法都是在目标对象或者接收者上调用 each 来工作的:
 
 ![Alt] (./collect1.png)
+
+> 你可以把 Enumerable 方法当做一系列不同类型的机器来一不同的方式操作数据, 所有都通过 each 方法.
+
+![alt] (./select-any.png)
+
+#### Enumerable 是急切的(这里翻译的不好,想不出更好的词了)
+
+> 许多 Enumerable 的方法, 包括 collect, 返回数组. 由于 Array 也包含( Mixin ) 了 Enumerable module 并且响应 each 方法, 你可以把不同的 Enumerable 的方法链到一起:
+
+![alt] (./collect-first.png)
+
+> 在我上面的代码中, Enumerable#first 方法在 collect 方法的产生的结果上调用了 each, 数组又是在 range 上调用了 each 生成的.
+
+> 一个重要的细节需要注意: Enumerable#collect 和 first 都是急切的, 就是说它们会在新的数组返回前处理 each 返回的所有的值. 在我例子中, 第一个 collect 处理 range 返回的所有的值并保存到 第一个Array 中.
+> 再看 step 2 部分, first处理 第一个数组(图中间的 Array) 所有的值,放入到第二个数组(图右):
+
+![alt] (./two-steps.png)
+
+> 这就是真正导致无穷 range 的没有结尾的循环原因.  因为 Range#each 一直会返回数值, 那么 Enumerable#collect 就不能完成, Enumerable#first 就不会有机会被执行.
+
+![alt] (./endless-loop.png)
+
+#### The Enumerator object: 推迟列举
+
+> 有一个有趣的技巧: 调用 Enumerable module 的方法不提供 block, 例如, 假设我 在 range 上调用 collect 方法,但不提供 block:
+```ruby
+# code03
+range = 1..10
+enum = range.collect
+p enum
+=> #<Enumerator: 1..10:collect>
+```
+
+> Ruby 准备了一个对象 可以供你后来使用, 它可以列举整个 range, 叫做 "Enumerater". code03 从打印的内窥字符串中可以看出, Ruby 保存一个引用, 这个引用中内容是接收者(1..10) 和 enumerable 方法的名字, 本例中就是 collect, 被保存到了 enumerator 对象中.
+
+![alt] (./enumerator-collect.png)
+
+> 以后我想要迭代 range 并且把里面的值放到数组中, 只需要在这个 enumerator 上调用 each:
+```ruby
+# code04
+p enum.each { |x| x * x }
+=> [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+```
+
+>>>> 还有一些别的方法使用 enumerators, 比如反复使用 next, 今天就不讨论了.
+
+#### Enumerator::Generator - 为枚举生成新的值
+
+> 在前面的例子我用 Range 对象生成了一组值. 然而, Enumerator 类使用 block 提供了更加灵活的方式来生成值.看下面的例子:
+```ruby
+enum = Enumerator.new  do |y|
+  y.yield 1
+  y.yield 2
+end
+```
+
+> inspect 看看这到底是什么样的 enumerator:
+```ruby
+p enum
+
+=> #<Enumerator: #<Enumerator::Generator:0x007faf6ab4ca50>:each>
+```
+
+>不难看出, Ruby 创建了一个新的 enumerator 对象, 它包含一个内部对象(Enumerator::Generator) 的引用, 而且在该对象上设置了each 方法的调用. 从内部看, generator 对象将我提供的 block 转换为一个 proc 对象然后保存起来:
+
+![alt](./enum-generator.png)
+
+> 当我使用 Enumerator 对象时, Ruby 将会调用这个 generator 内部的 proc, 为 enumeration 获取值:
+
+```ruby
+p enum.collect { |x| x*x }
+
+=> [1, 4]
+```
+
+> 换句话说, 对于迭代来说, Enumerator::Generator 对象才是数据的源头, 它产生值并且将这些值传递.
+
