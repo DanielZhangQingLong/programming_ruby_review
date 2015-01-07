@@ -14,6 +14,7 @@ p range.collect { |x| x*x }.first(10)
 => endless loop!
 ```
 > code01 中 调用 collect 开始了一个无尽的循环, 后面的 first 方法永远不会被执行. 但是如果升级到了 Ruby 2.0 使用 Enumerator#lazy 方法, 你就可以避免这种无穷循环的情况, 得到你需要的值:
+
 ```ruby
 # code02
 range = 1..Float::INFINITY
@@ -21,6 +22,7 @@ p range.lazy.collect { |x| x*x }.first(10)
 
 => [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
 ```
+
 
 > 那么 整个惰性求值是如何工作的呢? Ruby 又如何知道我只需要10个值, 在 code02 中我仅仅调用了一个 lazy, 就完成了我的目的.
 
@@ -31,4 +33,3 @@ p range.lazy.collect { |x| x*x }.first(10)
 > 当我在调用 collect 的时候, 正在使用 Enumerable module. 你可能知道, 这个 module 包含一系列的方法, 如: select, detect, any? 等许多方法, 这些方法以不同的方式处理值. 
 > 在内部, 所有的这些方法都是在目标对象或者接收者上调用 each 来工作的:
 (./collect1.png)
-
