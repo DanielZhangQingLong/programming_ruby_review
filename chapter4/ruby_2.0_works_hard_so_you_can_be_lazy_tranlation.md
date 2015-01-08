@@ -179,3 +179,13 @@ enum.each {}
 ![alt] (./enumerator-yields.png)
 
 
+#### Enumerators 产生数据, Enumerable 方法使用数据
+
+> 回顾一下, 目前我在 Ruby 看到的 enumeration 大体上模式是这样的:
+
+*** Enumerator 对象产生数据
+*** Enumerable 使用数据(消耗数据)
+
+![alt] (./each-and-yield.png)
+
+> 从右至左, enumerable 方法调用来请求数据; 从左至右, enumerator 对象通过 把数据 yield 给 block 来提供数据.
