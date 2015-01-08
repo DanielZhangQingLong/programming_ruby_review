@@ -84,6 +84,7 @@ p enum.each { |x| x * x }
 
 > 在前面的例子我用 Range 对象生成了一组值. 然而, Enumerator 类使用 block 提供了更加灵活的方式来生成值.看下面的例子:
 ```ruby
+# code05
 enum = Enumerator.new  do |y|
   y.yield 1
   y.yield 2
@@ -91,7 +92,8 @@ end
 ```
 
 > inspect 看看这到底是什么样的 enumerator:
-```ruby
+```ruby4
+# code06
 p enum
 
 => #<Enumerator: #<Enumerator::Generator:0x007faf6ab4ca50>:each>
@@ -104,10 +106,76 @@ p enum
 > 当我使用 Enumerator 对象时, Ruby 将会调用这个 generator 内部的 proc, 为 enumeration 获取值:
 
 ```ruby
+# code07
 p enum.collect { |x| x*x }
 
 => [1, 4]
 ```
 
 > 换句话说, 对于迭代来说, Enumerator::Generator 对象才是数据的源头, 它产生值并且将这些值传递.
+
+
+#### Enumerator::Yielder - 允许一个 block去 yield 另外一个
+
+> 仔细观察上面的代码, 有些奇怪, 我起初用 block 创建了 Enumerator 对象:
+
+```ruby
+enum = Enumerator.new do |y|
+  y.yield 1
+  y.yield 2
+end
+```
+
+>  yield 产生的值给了我调用 each(collect) 提供的 block:
+
+```ruby
+p enum.collect { |x| x*x }
+
+=> [1, 4]
+```
+
+> 换言之, enumerator 以某种方式允许你从一个 block 向另外一个传递值:
+
+![alt](./two-blocks.png)
+
+> 当然 Ruby 并不是这么做的. block 之间是不能像这样互相传值的. 其实的技巧好是 使用了一个内部对象- Enumerator::Yielder, 使用 y 参数传入 block 中:
+
+```ruby
+enum = Enumerator.new do |y|
+  y.yield 1
+  y.yield 2
+end
+```
+
+> 这里 y 参数很容易漏掉, 但是如果你再次读一下上面的 block 代码, 事实上, 我没有我没有使用 yield 产生并且传递值, 我只是在 y 对象上调用了 yield 方法, y 对象是 Ruby 内建类 Enumerator::Yielder 的实例. 看下面的实验:(irb)
+
+```ruby
+$irb
+y = Enumerator::Yielder.new { |str| puts str  }
+ => #<Enumerator::Yielder:0x007fbf0a282550>
+
+y.yield "test"
+test
+=> nil
+```
+
+>> ** 这里我(译者)补充一下, 我觉得在 Enumerator.new 中把 inpsect 一下 y 会更能说明问题 **
+
+```ruby
+$irb
+enum = Enumerator.new do |y| 
+  p y
+end
+=> #<Enumerator: #<Enumerator::Generator:0x007fbf0a2de580>:each>
+
+enum.each {}
+=> #<Enumerator::Yielder:0x007fbf0a1ab8e8>
+```
+
+> 也就是说, y 对象就是 Enumerator::Yielder 的实例, block 中只不过是个简单的方法调用而已,不涉及传值与否的问题
+
+> yielder 拿到我想要 enumerator 产生的值, 通过 yield 方法, 将这些值传递给目标 block. 作为 Ruby 开发者, 除了 yield 方法我一般不会去与 yielder 和 generator 进行交互, 在内部它们被 enumerator 使用. 在 enumerator 调用 each 时, 它会使用这两个对象生成 和传递值:
+
+![alt] (./enumerator-yields.png)
+
 
