@@ -189,3 +189,50 @@ enum.each {}
 ![alt] (./each-and-yield.png)
 
 > 从右至左, enumerable 方法调用来请求数据; 从左至右, enumerator 对象通过 把数据 yield 给 block 来提供数据.
+
+#### Enumerator::Lazy - 把所有的放到一起
+
+> Ruby 2.0 使用 Enumerator::Lazy 对象实现了惰性求值. 特别之处在于, 它扮演了2种角色: enumerator 和 enumerable. 它调用 each 从 enumeration 数据源中获取数据, 然后 yield 数据给剩下的数据源:
+
+![alt](./left-and-right.png)
+
+> 既然 Enumerator::Lazy 承担了这两个任务, 那么就可以把这些方法链到一起产生一个单独的 enumeration. 所以下面的代码就说得通了:
+
+```ruby
+range = 1..Float::INFINITY
+p range.lazy.collect { |x| x*x }.first(10)
+=> [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+```
+
+> 调用 lazy 产生了一个 Enumerator::Lazy 对象. 在第一个对象上调用 first 时, Enumerator::Lazy#collect 返回第二个对象:
+
+![alt] (./lazy-chain.png)
+
+> 可以看到 第二个 Enumerator::Lazy (被 Enumerator::Lazy#collect 创建) 也调用了 <code> x*x </code> 这个 block.
+
+> Enumerator#Lazy 到底时怎么做到的? 服务于数据生产者和数据消费者, Enumerator::Lazy 以一种特殊的方式来使用 generator 和 yielder. generator 首先调用 each 获取数据, 然后把每个值传入到一个特别的 block 中: 
+
+![alt](./lazy-details.png)
+
+> 深入看一下上面的示意图的block, 这个 block 实现了 Enumerator::Lazy#collect 方法.(其他 lazy 方法 使用了不同的 block). Ruby 内部是用C 实现的, 下面是 Ruby 来模拟:
+
+```ruby
+do |y, value|
+  result = yield value
+  y.yield result
+end
+```
+
+> 这段代码中, block 接收两个参数 --- yielder(y) 和一个 value, 然后它把 value 传给了另外一个 block, 实际上就是我例子中的x*x. 然后 Enumerator::Lazy#collect block 调用yielder, 把结果传给 enumeration 剩余的部分.
+
+> 这是 ruby 中惰性求值的关键, 数据源的每个值都会传递到我的 block 中, 然后结果马上会传给我的 enumeration 链中剩下的部分. 这个 enumeration 并不着急去遍历全部, Enumerator::Lazy#collect 不会把值放入 array, 而是, 通过重复的调用 yield, 每次在#Enumerator::Lazy 对象的调用链上传递一个值.如果我把一系列的 Enumerator::Lazy#collect( 或者其他 lazy 方法 ) 链到一起, 每个值会通过链从我的一个 block 到下一个,每次一个值:
+
+** 需要强调的是每次传递一个值, 看下面我个人做的实验 **
+
+```ruby
+(1..10).lazy.collect { |x| print x, "B "  }.collect { |x| print x , "A " }.first 10
+
+ # 1B A 2B A 3B A 4B A 5B A 6B A 7B A 8B A 9B A 10B A
+```
+![alt] (./lazy-chain2.png)
+
