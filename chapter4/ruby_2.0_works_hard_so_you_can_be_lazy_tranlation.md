@@ -234,5 +234,23 @@ end
 
  # 1B A 2B A 3B A 4B A 5B A 6B A 7B A 8B A 9B A 10B A
 ```
+
 ![alt] (./lazy-chain2.png)
 
+
+#### 惰性求值: 在后面执行代码
+
+> 为什么这个调用链是惰性的? 为什么可以让 ruby 避免了无穷的循环, 只给我需要的值? 答案是 enumeration 链的最后的方法, 我例子中的 first(10), 控制了这个迭代可以允许多长:
+
+```ruby
+range = 1..Float::INFINITY
+p range.lazy.collect { |x| x*x }.first(10)
+
+=> [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+```
+
+![alt](./lazy-chain-end.png)
+
+> 在 Enumerable#first 接受足够的 value 之后, 我的例子是 10, 它会用抛异常的方式停止迭代.
+
+> 换言之, 调用链最右边的代码, 控制了执行流, Enumerable#first 通过在 lazy enumerator 上调用 each 开始迭代, 获取足够的值以后抛出异常停止迭代.
