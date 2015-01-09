@@ -14,21 +14,15 @@
 
 > 讽刺的是 java 又要恢复函数式编程的风格了. 完全函数式编程语言( Clojure ) 和 交替性函数式编程语言( Scala ) 所以概念有开始变得有意义了. 但是过去这些年对这些概念的损害已经造成了影响并且这种影响还会继续. 学术界也不急于调整. 你不可能再对函数式概念毫不知情了, 即使是 javascript, 这种 web 2.0让我们深恶痛绝的语言--是函数式的杂交产物. 开发者开始热衷于这些概念, 好像他们的这些观点就可以代表这些概念:
 
-```
-在计算机科学中, 闭包是first-class function ,并且 把自由的变量绑定到语法环境里. 
 
-```
+> 在计算机科学中, 闭包是first-class function ,并且 把自由的变量绑定到语法环境里. 
+
 > 这里 first-class 我在维基百科上找了下面的一句解释:
-```
 supports passing functions as arguments to other functions, returning them as the values from other functions, and assigning them to variables or storing them in data structures.
-
-```
 
 > 这到底是什么意思? 维基百科的解释还好些, 但是少了一些函数式的上下文, 还是很难说得通. 你也许听到这样的解释:
 
-```
-闭包是一个函数, 据说是关闭的, 是自由变量. 
-```
+> > 闭包是一个函数, 据说是关闭的, 是自由变量. 
 
 > 真的吗? closure 关闭, 为什么. 这么说直接跳过了问题. 一般下个问题一定是来争论使问题明朗. 但是想上面的解释还不如不解释, 它只会让别人觉得很时髦, 没有实际意义. 但是, 你想向某人解释什么事物时, 自己要明白, 而不是自欺欺人. 现在让我来解释一下吧. (这部分似乎用处不大, 而且很批判, 我不是很喜欢)
 
@@ -47,7 +41,9 @@ supports passing functions as arguments to other functions, returning them as th
 
 > 没有例子就等于完全没有解释, 例子才能使这些逐渐被理解. 我要用 Ruby 语言, 因为它支持闭包.
 > 在 Ruby 中, 闭包是通过 proc 和 lambda 支持的. 它们非常相似, 但是有一些微妙的区别. 我们来创建一个闭包来看看实现上面的两个属性的:
+
 ```ruby
+
 class SomeClass
   def initialize(value1)
     @value1 = value1
@@ -56,7 +52,6 @@ class SomeClass
   def value_printer(value2)
     lambda { puts "Value1: #{@value1}, Value2: #{value2}" }
   end
-
 
 end
 
@@ -75,7 +70,9 @@ caller(printer)
 >  执行后输出了下面的内容:
 
 ```ruby
+
  Value1: 5, Value2: some value
+ 
 ```
 
 > value_printer 创建了一个闭包, 通过使用 lambda 结构, 然后返回闭包. 然后把该闭包赋值给一个变量, 传给另外一个函数, 这个函数中调用了这个闭包. 这就满足了闭包的第一个属性--可传递.
@@ -87,6 +84,7 @@ caller(printer)
 2. 闭包 延长了它所需要的所有变量的生命周期. 没有复制变量, 而是保留了它们的引用, 而且变量本身不可以被垃圾回收器回收掉.
 
 > 如果语言支持第一种方式, 那么如果我们创建两个或者更多闭包来访问相同的变量, 每个闭包被调用时都有自己单独对变量的拷贝. 如果语言支持第二中方式, 所有的闭包都引用同一个变量, 它们实际上处理的就是同一变量. Ruby 就是这么做的.看下面的例子:
+
 ```ruby
 
 class SomeClass
@@ -98,26 +96,27 @@ class SomeClass
     lambda { @value1 += 1 }
   end
 
+
   def value_printer
-    lambda { puts "value: #{@value1}" }
+    lambda { puts "value: #{ @value1 }"}
   end
 end
 
 some_class = SomeClass.new(2)
 incrementer_closure = some_class.value_incrementer
 printer_closure = some_class.value_printer
-
 3.times do 
   incrementer_closure.call
   printer_closure.call
 end
-
 运行结果: 
-#=> 
+ #=> 
 value: 3
 value: 4
 value: 5
+
 ```
+
 > 这一次我们创建了两个闭包, 一个做增加 value 的 一个做打印.  我们运行3次闭包, 发现: 每一次迭代2个闭包操作的都是同一个变量, 因为值在增长. 如果 Ruby 要是用复制变量的方法来实现闭包的话,我们将会看到打印的结果都是2, 打印的闭包操作的变量是它单独的拷贝.
 
 ### 为什么闭包有用?
