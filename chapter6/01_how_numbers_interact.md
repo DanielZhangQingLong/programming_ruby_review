@@ -27,4 +27,3 @@ Complex::I * Complex::I
 # => -1
 
 ```
-
