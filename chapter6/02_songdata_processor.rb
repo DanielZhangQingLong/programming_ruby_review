@@ -15,4 +15,3 @@ File.open("./02_songdata") do |song_file|
   end
 
 end
-
