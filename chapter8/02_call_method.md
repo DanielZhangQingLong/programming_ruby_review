@@ -17,7 +17,7 @@ Math.sin(Math::PI/4) # => 0.7071067811865475
 
 > 如果你省略接收者, 那么默认就会设置为 self, 当前对象. 
 
-> 如果有些方法不想暴露给外界, 可以使用 helper 方法 private
+> 如果有些方法不想暴露给外界, 可以使用 helper 方法 private, 这样 new 的对象就不可以访问了
 
 ```ruby
 class Test
