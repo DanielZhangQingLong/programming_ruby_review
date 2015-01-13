@@ -14,4 +14,7 @@ File.open("./02_songdata") do |song_file|
     puts songs[index]
   end
 
+  file.close
+
 end
+
