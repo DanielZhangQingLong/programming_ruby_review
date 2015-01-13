@@ -43,4 +43,5 @@ cool_dude("Bart", "Elwood", "Linus")
 def surround(word, pad_width=word.length/2) 
   "[" * pad_width + word + "]" * pad_width
 end
+
 ```
