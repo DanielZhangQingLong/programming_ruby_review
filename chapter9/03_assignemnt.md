@@ -30,4 +30,4 @@ list[4] # => "PAINT"
 ```
 > 这种赋值方法就是需要调用左边的 list 对象的 [] 方法, 才可以完成赋值过程.
 
-> 上面的例子中, 这些属性设定方法在内部根本没有对应的实例变量, 所以你不需要属性读取器( attribute reader) 对于每个 attribute writer.
+> 上面的例子中, 这些属性设定方法不需要对于内部的实例变量, 所以你不需要属性读取器( attribute reader) 对于每个 attribute writer.
