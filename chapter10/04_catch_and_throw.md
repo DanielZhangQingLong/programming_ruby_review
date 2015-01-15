@@ -20,6 +20,7 @@ end
 ```
 
 > 可以发现: catch 定义了一个 block 并且命名为 done, block 被正常被执行直到执行到throw .当 ruby 遇到 throw, 它会回到调用栈中找这个catch block 并且有匹配的名字. Ruby 会回到  stack 中catch 这一点然后终止这个 block. 如果 throw 提供了第二个参数, 那么, 这个参数的值会被从 catch 返回出去. 如果没有,返回 nil.
+
 ```ruby
 
 word_list = File.open("wordlist")
