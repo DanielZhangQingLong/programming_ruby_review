@@ -39,7 +39,7 @@ end
     puts "Failed: '#{word_in_error}' found, but a word was expected"
   end
   # =>
-  Failed: '*&danci' found, but a word was expected
+  Failed: '\*&danci' found, but a word was expected
 
 ```
 
