@@ -30,7 +30,7 @@ class File
     if block_given?
       begin
         result = yield f
-      rescue
+      ensure
         f.close
       end
     end
