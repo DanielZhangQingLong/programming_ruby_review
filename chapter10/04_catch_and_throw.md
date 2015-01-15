@@ -40,4 +40,5 @@ end
   end
   # =>
   Failed: '*&danci' found, but a word was expected
+
 ```
