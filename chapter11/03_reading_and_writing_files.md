@@ -106,3 +106,79 @@ puts arr.length
 ```
 
 > IO 是异常出现最多的地方, 所以应该做合适的异常处理.
+
+
+
+# Writing to Files
+
+> 到目前为止, 我们已经看到调用 `puts` `print`, 传递对象. 然后 ruby 就将它输出, 这就是写操作了. ruby 是如何做到的呢? 答案很简单, 每个对象传递给 `puts` 和 `print` 后, 都会调用该对象上的`to_s`方法, 返回` string` 如果这个对象没有返回有效的 string, 那么一个有对象名和 ID,的string 将会被返回 像 `#<ClassName:0x123456>`
+
+```ruby
+
+File.open("output.txt", 'w') do |file|
+  file.puts "Hello"
+  file.puts "1 + 2 = #{1+2}"
+end
+
+puts File.read("output.txt")
+
+produces:
+Hello
+1 + 2 = 3
+
+```
+
+> 例外也很简单, `nil` 会打印为空字符串, 数组的每个元素会被puts 逐个输出. 
+
+#### 把二进制数据存入 string中
+
+> str1 = "\001\002\003" # => "\u0001\u0002\u0003"
+
+> str2 = ""; str2 << 1 << 2 << 3 # => "\u0001\u0002\u0003"
+
+> [ 1, 2, 3  ].pack("c*") # => "\x01\x02\x03"
+
+
+### But I Miss My C++ iostream
+
+> 你可以将一个对象追加的 IO 流中:
+
+```ruby
+endline = "\n"
+
+STDOUT << 777 << " dfsafsdfsddf " << endline
+
+777 dfsafsdfsddf
+```
+> STDOUT 指标准输出., `<<` 也是方法, 在打印参数之前也会调用其 `to_s` 方法.
+
+### Doing IO with Strings
+
+> 有些时候你需要写这样的代码: 假设, 它读取于或者写出至一个或者多个文件. 但是当数据不在文件中时候, 你就有麻烦了. 也许来自 SOAP 服务的数据或者作为命令行参数传给你, 或者你正在跑一个单元测试 你不想改变真正的文件系统.
+
+> 使用 StringIO 对象, 他们和其他 IO 对象一样, 但是读写字符串不是文件, 如果你打开 StringIO来读取, 你给它提供 string. 所有StringIO 的所有读操作就会从字符串读取, 相似的, 当你要写进时只需要传一个字符串就行.
+
+```ruby
+require 'stringio'
+
+ip = StringIO.new("fdsdfsdfl\nsdfjls\nfjlsfjlsjflsj\ndfkwrhiohfksdhfskjf");
+op = StringIO.new("", "w")
+
+ip.each_line do |line|
+  op.puts line.reverse
+end
+
+puts op.string
+
+produces:
+
+lfdsfdsdf
+
+sljfds
+
+jslfjsljfsljf
+fjksfhdskfhoihrwkfd
+```
+
+> 实际就是 java 的字节流.
+
